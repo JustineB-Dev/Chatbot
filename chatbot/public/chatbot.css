@@ -1,0 +1,118 @@
+/* Global Styles */
+body {
+    font-family: 'Instrument Sans', sans-serif;
+    background-color: #f9fafb; 
+    margin: 0;
+    padding: 0;
+    color: #333; 
+}
+
+.navbar {
+    background-color: #5d6d7e; 
+    padding: 16px 24px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar h1 {
+    margin: 0;
+    font-size: 24px;
+    letter-spacing: 2px;
+    color: #ffffff; 
+    text-align: center;
+}
+
+/* Main Container */
+.container {
+    max-width: 600px;
+    margin: 60px auto;
+    padding: 30px;
+    background-color: #ffffff; 
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); 
+}
+
+h2 {
+    font-size: 28px;
+    margin-bottom: 20px;
+    color: #2c3e50; 
+    text-align: center;
+}
+
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+input[type="text"], textarea {
+    padding: 12px;
+    font-size: 16px;
+    border: 1px solid #ccd1d1; 
+    border-radius: 6px;
+    width: 100%;
+    box-sizing: border-box;
+    background-color: #ecf0f1; 
+    color: #333; 
+    resize: none;
+}
+
+/* Disable cursor for disabled fields */
+input[type="text"]:disabled,
+textarea:disabled {
+    cursor: not-allowed;  
+}
+
+
+textarea {
+    height: 150px;
+}
+
+input[type="text"]:focus, textarea:focus {
+    border-color: #2980b9; 
+    outline: none;
+}
+
+button[type="sent"],
+button[type="reset"] {
+    background-color: #3498db; 
+    color: white;
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    width: 100px;
+    margin-top: 10px;
+    text-align: center;
+}
+
+button[type="sent"]:hover, button[type="reset"]:hover {
+    background-color: #2980b9; 
+}
+
+.button-group {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        margin: 20px;
+        padding: 20px;
+    }
+
+    button[type="sent"], button[type="reset"] {
+        width: 100%; 
+    }
+
+    h2 {
+        font-size: 24px;
+    }
+}

@@ -1,52 +1,71 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Slash AI Chatbot</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>Chatbot</title>
-        <!-- Fonts -->
-        <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
-        <link rel="stylesheet" href="https://www.w3schools.com/w3css/5/w3.css">
-        <style>
-            body {font-family: "Times New Roman", Georgia, Serif;}
-            h1, h2, h3, h4, h5, h6 {
-            font-family: "Playfair Display";
-            letter-spacing: 5px;
-            }
-        </style>
-    </head>
-    <body class="bg-[#FDFDFC] dark:bg-[#0a0a0a] text-[#1b1b18] flex p-6 lg:p-8 items-center lg:justify-center min-h-screen flex-col">
-        <!-- Navbar (sit on top) -->
-        <div class="w3-top">
-            <div class="w3-bar w3-white w3-padding w3-card" style="letter-spacing:4px;">
-            <a href="#home" class="w3-bar-item w3-button">SLASH AI CHATBOT</a>
-            <!-- Right-sided navbar links. Hide them on small screens -->
-            <div class="w3-right w3-hide-small">
-                <a href="#about" class="w3-bar-item w3-button">About</a>
-                <a href="#menu" class="w3-bar-item w3-button">Menu</a>
-                <a href="#contact" class="w3-bar-item w3-button">Contact</a>
+   
+    <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/5/w3.css">
+
+    <link rel="stylesheet" href="{{ asset('chatbot.css') }}">
+</head>
+<body>
+
+    <div class="navbar">
+        <h1>SLASH AI CHATBOT</h1>
+    </div>
+
+        <div class="container">
+            <h2>Slash Ai-Chatbot</h2>
+    
+            <form class="form" id="usrform">
+                <div class="input-usrname">
+                    <input type="text" name="usrname" placeholder="Enter your name..." required>
+                </div>
+    
+                
+                <div class="input-comment">
+                    <textarea name="comment" placeholder="Ask Chatbot..." form="usrform" required></textarea>
+                </div>
+
+                
+            <div class="button-group">
+                <button type="reset">Reset</button>
+                <button type="sent">Sent</button>
             </div>
-            </div>
+            </form>
         </div>
-        
-        <!-- Header -->
-        <header class="w3-display-container w3-content w3-wide" style="max-width:1600px;min-width:500px" id="home">
-            <img class="w3-image" src="/w3images/hamburger.jpg" alt="Hamburger Catering" width="1600" height="800">
-            <div class="w3-display-bottomleft w3-padding-large w3-opacity">
-            <h1 class="w3-xxlarge">Le Catering</h1>
-            </div>
-        </header>
-        
-        <!-- Page content -->
-        <div class="w3-content" style="max-width:1100px; padding-top: 25px;">
-            <h1 style="text-align: center;">Slash Ai-Chatbot</h1>
-        <!-- End page content -->
-        </div>
-        
-        <!-- Footer -->
-        <footer class="w3-center w3-light-grey w3-padding-32">
-            <p>Powered by <a href="https://www.w3schools.com/w3css/default.asp" title="W3.CSS" target="_blank" class="w3-hover-text-green">w3.css</a></p>
-        </footer>
-    </body>
+
+
+          <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const firstTextBox = document.querySelector('input[name="usrname"]');
+            const secondTextArea = document.querySelector('textarea[name="comment"]');
+            
+           
+            secondTextArea.disabled = true;
+
+          
+            firstTextBox.addEventListener('input', function () {
+                if (firstTextBox.value.trim() !== '') {
+                    secondTextArea.disabled = false; 
+                } else {
+                    secondTextArea.disabled = true; 
+                    secondTextArea.value = '';
+                }
+            });
+
+           
+            secondTextArea.addEventListener('input', function () {
+                if (secondTextArea.disabled) {
+                    secondTextArea.value = '';
+                }
+            });
+        });
+
+    </script>
+
+</body>
 </html>
