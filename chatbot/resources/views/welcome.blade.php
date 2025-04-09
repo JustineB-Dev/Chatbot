@@ -33,37 +33,69 @@
                 
             <div class="button-group">
                 <button type="reset">Reset</button>
-                <button type="sent">Sent</button>
+                <button type="button" id="send" class="send">Send</button>
             </div>
             </form>
         </div>
 
+        <div class="container">
+            <div id="chatbot-response"></div>
+        </div>
 
-          <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const firstTextBox = document.querySelector('input[name="usrname"]');
-            const secondTextArea = document.querySelector('textarea[name="comment"]');
+
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script>
+            $('#send').on('click', function () {
+                var usrname = $('input[name="usrname"]').val();
+                var comment = $('textarea[name="comment"]').val();
+
+                $.ajax({
+                    url: '/chat',
+                    type: 'POST',
+                    data: {
+                        usrname: usrname,
+                        comment: comment,
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function(response) {
+                        console.log(response); // Log the response to check the output
+                        if (response.response) {
+                            $('#chatbot-response').text("Chatbot says: " + response.response);
+                        } else {
+                            $('#chatbot-response').text("Error: No response from OpenAI");
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.log("Error: ", error);
+                        alert('An error occurred: ' + error);
+                    }
+                });
+            });
+
+            document.addEventListener('DOMContentLoaded', function () {
+                const firstTextBox = document.querySelector('input[name="usrname"]');
+                const secondTextArea = document.querySelector('textarea[name="comment"]');
+                
             
-           
-            secondTextArea.disabled = true;
+                secondTextArea.disabled = true;
 
-          
-            firstTextBox.addEventListener('input', function () {
-                if (firstTextBox.value.trim() !== '') {
-                    secondTextArea.disabled = false; 
-                } else {
-                    secondTextArea.disabled = true; 
-                    secondTextArea.value = '';
-                }
-            });
+            
+                firstTextBox.addEventListener('input', function () {
+                    if (firstTextBox.value.trim() !== '') {
+                        secondTextArea.disabled = false; 
+                    } else {
+                        secondTextArea.disabled = true; 
+                        secondTextArea.value = '';
+                    }
+                });
 
-           
-            secondTextArea.addEventListener('input', function () {
-                if (secondTextArea.disabled) {
-                    secondTextArea.value = '';
-                }
+            
+                secondTextArea.addEventListener('input', function () {
+                    if (secondTextArea.disabled) {
+                        secondTextArea.value = '';
+                    }
+                });
             });
-        });
 
     </script>
 

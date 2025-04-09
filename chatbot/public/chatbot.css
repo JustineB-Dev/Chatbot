@@ -76,7 +76,7 @@ input[type="text"]:focus, textarea:focus {
     outline: none;
 }
 
-button[type="sent"],
+.send,
 button[type="reset"] {
     background-color: #3498db; 
     color: white;
