@@ -15,31 +15,49 @@
 
     <div class="navbar">
         <h1>SLASH AI CHATBOT</h1>
-    </div>
-
-        <div class="container">
+      </div>
+      
+      <div class="chat-wrapper">
+        <!-- Left Side: RAG Function -->
+        <aside class="chat-aside">
+            <div class="container">
+              <h2>RAG Function</h2>
+              <h3>Upload PDF</h3>
+              <form action="/upload-pdf" method="POST" enctype="multipart/form-data">
+                <input type="file" name="pdfFiles[]" accept="application/pdf" multiple required id="pdfFiles" onchange="displayFileNames()">
+                <button type="submit">Upload</button>
+              </form>
+              <div id="fileListContainer"></div>
+            </div>
+          </aside>
+        <!-- Right Side: Slash AI Chatbot -->
+        <main class="chat-main">
+          <div class="container">
             <h2>Slash Ai-Chatbot</h2>
-    
             <form class="form" id="usrform">
-                <div class="input-usrname">
-                    <input type="text" name="usrname" placeholder="Enter your name..." required>
-                </div>
-    
-                
-                <div class="input-comment">
-                    <textarea name="comment" placeholder="Ask Chatbot..." form="usrform" required></textarea>
-                </div>
-                
-            <div class="button-group">
+              <div class="input-usrname">
+                <input type="text" name="usrname" placeholder="Enter your name..." required>
+              </div>
+      
+              <div class="input-comment">
+                <textarea name="comment" placeholder="Ask Chatbot..." form="usrform" required></textarea>
+              </div>
+      
+              <div class="button-group">
                 <button class="reset" type="reset">Reset</button>
                 <button class="sent" type="button" id="sendMessage">Send</button>
-            </div>
+              </div>
             </form>
-        </div>
-        <div class="container">
-            <div id="chatResponse" style="margin-top: 20px; font-weight: bold;"></div>
-        </div>
-
+      
+            <div class="container" style="margin-top: 30px;">
+              <h4> AI Response: </h4>
+              <div id="chatResponse" style="margin-top: 10px; font-weight: bold;"></div>
+            </div>
+          </div>
+        </main>
+      </div>
+      
+                  
 
         <script>
             document.addEventListener('DOMContentLoaded', function () {
@@ -86,6 +104,24 @@
                 });
             });
         });
+
+        function displayFileNames() {
+    const fileInput = document.getElementById('pdfFiles');
+    const fileListContainer = document.getElementById('fileListContainer');
+
+    const files = fileInput.files;
+    if (files.length === 0) {
+      fileListContainer.innerHTML = '';
+      return;
+    }
+
+    let fileListHTML = '<h4>Files selected:</h4><ul>';
+    for (let i = 0; i < files.length; i++) {
+      fileListHTML += `<li>${files[i].name}</li>`;
+    }
+    fileListHTML += '</ul>';
+    fileListContainer.innerHTML = fileListHTML;
+  }
         </script>
 
 </body>
