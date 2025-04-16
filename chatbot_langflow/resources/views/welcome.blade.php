@@ -24,6 +24,7 @@
               <h2>RAG Function</h2>
               <h3>Upload PDF</h3>
               <form action="/upload-pdf" method="POST" enctype="multipart/form-data">
+                @csrf
                 <input type="file" name="pdfFiles[]" accept="application/pdf" multiple required id="pdfFiles" onchange="displayFileNames()">
                 <button type="submit">Upload</button>
               </form>
@@ -49,7 +50,7 @@
               </div>
             </form>
       
-            <div class="container" style="margin-top: 30px;">
+            <div class="container" style="margin-top: 30px; background-color: rgba(172, 163, 163, 0.5);">
               <h4> AI Response: </h4>
               <div id="chatResponse" style="margin-top: 10px; font-weight: bold;"></div>
             </div>
@@ -106,22 +107,22 @@
         });
 
         function displayFileNames() {
-    const fileInput = document.getElementById('pdfFiles');
-    const fileListContainer = document.getElementById('fileListContainer');
+          const fileInput = document.getElementById('pdfFiles');
+          const fileListContainer = document.getElementById('fileListContainer');
 
-    const files = fileInput.files;
-    if (files.length === 0) {
-      fileListContainer.innerHTML = '';
-      return;
-    }
+          const files = fileInput.files;
+          if (files.length === 0) {
+            fileListContainer.innerHTML = '';
+            return;
+          }
 
-    let fileListHTML = '<h4>Files selected:</h4><ul>';
-    for (let i = 0; i < files.length; i++) {
-      fileListHTML += `<li>${files[i].name}</li>`;
-    }
-    fileListHTML += '</ul>';
-    fileListContainer.innerHTML = fileListHTML;
-  }
+          let fileListHTML = '<h4>Files selected:</h4><ul>';
+          for (let i = 0; i < files.length; i++) {
+            fileListHTML += `<li>${files[i].name}</li>`;
+          }
+          fileListHTML += '</ul>';
+          fileListContainer.innerHTML = fileListHTML;
+        }
         </script>
 
 </body>
