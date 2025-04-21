@@ -60,20 +60,20 @@
       
                   
 
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
+      <script>
+        document.addEventListener('DOMContentLoaded', function () {
             const sendBtn = document.getElementById('sendMessage');
-
+    
             sendBtn.addEventListener('click', function () {
                 const username = document.querySelector('input[name="usrname"]').value;
                 const question = document.querySelector('textarea[name="comment"]').value;
                 const chatResponse = document.getElementById('chatResponse');
-
+    
                 if (!username || !question) {
                     alert("Please enter both your name and a question.");
                     return;
                 }
-
+    
                 fetch("/chatbot/message", {
                     method: "POST",
                     headers: {
@@ -88,11 +88,11 @@
                 .then(response => response.json())
                 .then(data => {
                     console.log('Langflow response:', data); // Debugging log to check the full response
-                    
+    
                     // Access the message from the correct path
                     const outputs = data.outputs; // Assuming 'outputs' is a property of 'data'
                     const message = outputs?.[0]?.outputs?.[0]?.messages?.[0]?.message;
-
+    
                     if (message) {
                         chatResponse.innerText = `AI says: ${message}`;
                     } else {
@@ -105,25 +105,60 @@
                 });
             });
         });
-
+    
+        // Display selected file names
         function displayFileNames() {
-          const fileInput = document.getElementById('pdfFiles');
-          const fileListContainer = document.getElementById('fileListContainer');
-
-          const files = fileInput.files;
-          if (files.length === 0) {
-            fileListContainer.innerHTML = '';
-            return;
-          }
-
-          let fileListHTML = '<h4>Files selected:</h4><ul>';
-          for (let i = 0; i < files.length; i++) {
-            fileListHTML += `<li>${files[i].name}</li>`;
-          }
-          fileListHTML += '</ul>';
-          fileListContainer.innerHTML = fileListHTML;
+            const fileInput = document.getElementById('pdfFiles');
+            const fileListContainer = document.getElementById('fileListContainer');
+    
+            const files = fileInput.files;
+            if (files.length === 0) {
+                fileListContainer.innerHTML = '';
+                return;
+            }
+    
+            let fileListHTML = '<h4>Files selected:</h4><ul>';
+            for (let i = 0; i < files.length; i++) {
+                fileListHTML += `<li>${files[i].name}</li>`;
+            }
+            fileListHTML += '</ul>';
+            fileListContainer.innerHTML = fileListHTML;
         }
-        </script>
+    
+        // Handle PDF upload form submission
+        const uploadForm = document.querySelector('form[action="/upload-pdf"]');
+        uploadForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+    
+            const formData = new FormData(uploadForm);
+            const fileListContainer = document.getElementById('fileListContainer');
+            
+            // Show uploading message
+            fileListContainer.innerHTML = `<p style="color: blue;">Uploading and replacing old files...</p>`;
+    
+            fetch("/upload-pdf", {
+                method: "POST",
+                headers: {
+                    "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Upload failed');
+                return response.text();
+            })
+            .then(() => {
+                // Reset the file input and show success message
+                document.getElementById('pdfFiles').value = ''; // Reset input field
+                fileListContainer.innerHTML = `<p style="color: green;">✅ PDF(s) uploaded successfully and previous files replaced.</p>`;
+            })
+            .catch(() => {
+                // Show error message
+                fileListContainer.innerHTML = `<p style="color: red;">❌ Upload failed. Please try again.</p>`;
+            });
+        });
+    </script>
+    
 
 </body>
 </html>
