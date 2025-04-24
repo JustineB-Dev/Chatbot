@@ -138,3 +138,4 @@ Route::post('/upload-pdf', function (Request $request) {
 
     return back()->with('success', 'Previous FAISS data replaced. New files uploaded and ingested!');
 });
+
