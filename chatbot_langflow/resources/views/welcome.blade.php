@@ -15,7 +15,7 @@
 
     <div class="navbar">
         <h1>SLASH AI CHATBOT</h1>
-      </div>
+    </div>
       
       <div class="chat-wrapper">
         <!-- Left Side: RAG Function -->
@@ -58,8 +58,6 @@
         </main>
       </div>
       
-                  
-
       <script>
         document.addEventListener('DOMContentLoaded', function () {
             const sendBtn = document.getElementById('sendMessage');
@@ -148,9 +146,36 @@
                 return response.text();
             })
             .then(() => {
-                // Reset the file input and show success message
-                document.getElementById('pdfFiles').value = ''; // Reset input field
-                fileListContainer.innerHTML = `<p style="color: green;">✅ PDF(s) uploaded successfully and previous files replaced.</p>`;
+              document.getElementById('pdfFiles').value = ''; // Reset input field
+              fileListContainer.innerHTML = `<p style="color: green;">✅ PDF(s) uploaded successfully and previous files replaced.</p>`;
+
+              // ✅ Trigger Langflow Ingestion
+              fetch("http://127.0.0.1:7860/api/v1/run/335c1045-6531-49cf-9368-3ae17359f2e3?stream=false", {
+                  method: "POST",
+                  headers: {
+                      "Content-Type": "application/json"
+                  },
+                  body: JSON.stringify({
+                      input_value: "",
+                      output_type: "text",
+                      input_type: "text",
+                      tweaks: {
+                          "Directory-aMlxQ": {},
+                          "SplitText-p3Lxr": {},
+                          "FAISS-xWfkL": {},
+                          "OllamaEmbeddings-pK6q7": {}
+                      }
+                  })
+              })
+              .then(res => res.json())
+              .then(data => {
+                  console.log("✅ Langflow Response:", data);
+                  fileListContainer.innerHTML += `<p style="color: green;">✅ Langflow ingestion completed.</p>`;
+              })
+              .catch(err => {
+                  console.error("❌ Langflow Error:", err);
+                  fileListContainer.innerHTML += `<p style="color: red;">❌ Langflow ingestion failed. Check console for details.</p>`;
+              });
             })
             .catch(() => {
                 // Show error message

@@ -17,9 +17,9 @@ Route::post('/chatbot/message', function (Request $request) {
     $username = $request->input('username');
     $message = $request->input('message');
     $response = Http::withHeaders([
-        'Authorization' => 'Bearer sk-ZLDPrRilEm3-q3umR0zUDEsaSMuKHnjAUQWgofqZVUg',
+        'Authorization' => 'Bearer sk-yfmDxEBMywtwwRfZwlN3Fi4uLwcK6tCaRN7-SLFq61M',
         'Content-Type' => 'application/json'
-    ])->post('http://127.0.0.1:7860/api/v1/run/6638ca2b-2409-4366-83db-2199804b3cc1', [
+    ])->post('http://127.0.0.1:7860/api/v1/run/8e9ce934-6b67-4085-88c4-316626c3888e?stream=false', [
         'input_value' => $request->input('message'),
         'output_type' => 'chat',
         'input_type' => 'chat',
@@ -38,104 +38,76 @@ Route::post('/chatbot/message', function (Request $request) {
 Route::post('/upload-pdf', function (Request $request) {
     $request->validate([
         'pdfFiles' => 'required|array',
-        'pdfFiles.*' => 'file|mimes:pdf|max:10240', // max 10MB each
-    ]);
-    $files = $request->file('pdfFiles');
-    $userId = auth()->id() ?? 'guest';
-
-    // Define the FAISS persist directory
-    $faissPath = storage_path("faiss_data/pdfs/{$userId}");
-    $textPath = storage_path("faiss_data/pdf_texts");
-
-    foreach ($files as $file) {
-        $originalName = $file->getClientOriginalName();
-        $timestampedName = time() . '_' . $originalName;
-    
-        if (!file_exists($faissPath)) {
-            mkdir($faissPath, 0777, true);
-        }
-    
-        // Move original PDF to faiss directory
-        $file->move($faissPath, $timestampedName);
-    
-        // Parse PDF content
-        $pdfText = (new Parser())->parseFile("{$faissPath}/{$timestampedName}")->getText();
-    
-        // ✨ Add filename to beginning of the text
-        $taggedText = "DOCUMENT NAME: {$originalName}\n\n{$pdfText}";
-    
-        // Save as .txt with same filename
-        $textFile = pathinfo($timestampedName, PATHINFO_FILENAME) . '.txt';
-        file_put_contents("{$faissPath}/{$textFile}", $taggedText);
-    
-        // Optional: delete original PDF to only ingest txt
-        unlink("{$faissPath}/{$timestampedName}");
-
-        Http::post('http://localhost:7860/api/ingest', [
-            'index_name' => 'langflow_chatbot',
-            'directory' => storage_path('faiss_data/pdfs'),
-        ]);
-    }
-
-
-    return back()->with('success', 'PDF uploaded and moved to Langflow folder!');
-});
-
-
-
-Route::post('/upload-pdf', function (Request $request) {
-    $request->validate([
-        'pdfFiles' => 'required|array',
-        'pdfFiles.*' => 'file|mimes:pdf|max:10240', // max 10MB each
+        'pdfFiles.*' => 'file|mimes:pdf|max:10240', // max 10MB
     ]);
 
     $files = $request->file('pdfFiles');
     $userId = auth()->id() ?? 'guest';
 
-    // Define directories
-    $faissPath = storage_path("faiss_data/pdfs/{$userId}");
+    // Paths
+    $faissUserPath = storage_path("faiss_data/pdfs/{$userId}");
     $faissRoot = storage_path("faiss_data");
-    $faissIndexFiles = [
-        "{$faissRoot}/langflow_chatbot.faiss",
-        "{$faissRoot}/langflow_chatbot.pkl"
-    ];
 
-    // ✅ 1. Delete previous FAISS index files
-    foreach ($faissIndexFiles as $file) {
-        if (file_exists($file)) {
-            unlink($file);
+    // Delete old FAISS files
+    $deletedFiles = ['{{ index_name }}.faiss', '{{ index_name }}.pkl'];
+    foreach ($deletedFiles as $fileName) {
+        $filePath = "{$faissRoot}/{$fileName}";
+        if (file_exists($filePath)) {
+            unlink($filePath);
         }
     }
 
-    // ✅ 2. Clean up all previously ingested TXT files
-    if (File::exists($faissPath)) {
-        File::cleanDirectory($faissPath);
+    // Prepare user folder
+    if (File::exists($faissUserPath)) {
+        File::cleanDirectory($faissUserPath);
     } else {
-        mkdir($faissPath, 0777, true);
+        mkdir($faissUserPath, 0777, true);
     }
 
-    // ✅ 3. Save new PDF(s) as text files
+    // Convert PDFs to tagged text
     foreach ($files as $file) {
         $originalName = $file->getClientOriginalName();
         $timestampedName = time() . '_' . $originalName;
+        $pdfPath = "{$faissUserPath}/{$timestampedName}";
 
-        $file->move($faissPath, $timestampedName);
-
-        $pdfText = (new Parser())->parseFile("{$faissPath}/{$timestampedName}")->getText();
+        $file->move($faissUserPath, $timestampedName);
+        $pdfText = (new Parser())->parseFile($pdfPath)->getText();
         $taggedText = "DOCUMENT NAME: {$originalName}\n\n{$pdfText}";
 
-        $textFile = pathinfo($timestampedName, PATHINFO_FILENAME) . '.txt';
-        file_put_contents("{$faissPath}/{$textFile}", $taggedText);
+        $textFilename = pathinfo($timestampedName, PATHINFO_FILENAME) . '.txt';
+        file_put_contents("{$faissUserPath}/{$textFilename}", $taggedText);
 
-        unlink("{$faissPath}/{$timestampedName}"); // delete original PDF after processing
+        unlink($pdfPath); // Remove original PDF
     }
 
-    // ✅ 4. Ingest new data into Langflow
-    Http::post('http://localhost:7860/api/ingest', [
-        'index_name' => 'langflow_chatbot',
-        'directory' => $faissPath,
+    // Path to user text directory
+    $realPath = realpath($faissUserPath);
+    $safePath = str_replace('\\', '/', $realPath); // Ensure forward slashes
+
+    try {
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+        ])->post('http://127.0.0.1:7860/api/v1/run/335c1045-6531-49cf-9368-3ae17359f2e3?stream=false', [
+            'input_value' => $safePath,
+            'output_type' => 'text',
+            'input_type' => 'text',
+            'tweaks' => [
+                "Directory-aMlxQ" => [],
+                "SplitText-p3Lxr" => [],
+                "FAISS-xWfkL" => [],
+                "OllamaEmbeddings-pK6q7" => []
+            ]
+        ]);
+
+        Log::debug('Langflow FAISS Ingestion Response:', $response->json());
+    } catch (\Exception $e) {
+        Log::error('Langflow ingestion error: ' . $e->getMessage());
+        return response()->json(['error' => 'Langflow ingestion failed'], 500);
+    }
+
+    return response()->json([
+        'success' => true,
+        'message' => '✅ PDF(s) processed and FAISS index regenerated.',
+        'path_used' => $safePath
     ]);
-
-    return back()->with('success', 'Previous FAISS data replaced. New files uploaded and ingested!');
 });
-
